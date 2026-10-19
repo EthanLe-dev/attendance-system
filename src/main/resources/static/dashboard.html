@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Quản trị Điểm danh</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/dashboard.css?v=1.5">
+</head>
+
+<body>
+
+<div id="dashboardContainer" class="dashboard-container hidden">
+
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="header-title-box">
+            <div class="admin-badge">BAN CÁN SỰ LỚP</div>
+            <h1>Bảng Quản Trị</h1>
+            <a href="/index.html" id="backToStudentBtn" class="back-link">Quay lại trang SV</a>
+        </div>
+
+        <div class="header-actions">
+            <button id="refreshBtn" type="button" class="action-btn refresh-btn" title="Cập nhật số liệu mới nhất">
+                Làm mới
+            </button>
+            <button id="copyReportBtn" type="button" class="action-btn report-btn" title="Sao chép báo cáo gửi Zalo cô giáo">
+                Báo cáo Zalo
+            </button>
+            <button id="toggleSessionBtn" type="button" class="action-btn toggle-session-btn">
+                Đang tải...
+            </button>
+        </div>
+    </header>
+
+    <!-- Session status & Progress Bar -->
+    <section class="session-card">
+        <div class="session-top-row">
+            <div>
+                <p class="section-label">Trạng thái điểm danh</p>
+                <div class="session-indicator-wrap">
+                    <span id="sessionPulse" class="pulse-dot closed"></span>
+                    <p id="sessionStatus" class="session-status">Đang tải...</p>
+                </div>
+            </div>
+
+            <div class="progress-info">
+                <span class="section-label">Tỷ lệ có mặt</span>
+                <span id="progressPercent" class="progress-percent">...%</span>
+            </div>
+        </div>
+
+        <!-- Progress Bar Fill -->
+        <div class="progress-bar-track">
+            <div id="progressBar" class="progress-bar-fill"></div>
+        </div>
+    </section>
+
+    <!-- Statistics -->
+    <section class="statistics-card">
+        <div class="stat-item stat-total">
+            <div class="stat-meta">
+                <span class="stat-label">Tổng sĩ số</span>
+                <strong id="totalStudents" class="stat-value">0</strong>
+            </div>
+        </div>
+
+        <div class="stat-item stat-success">
+            <div class="stat-meta">
+                <span class="stat-label">Đã có mặt</span>
+                <strong id="attendedStudents" class="stat-value">0</strong>
+            </div>
+        </div>
+
+        <div class="stat-item stat-pending">
+            <div class="stat-meta">
+                <span class="stat-label">Còn vắng</span>
+                <strong id="unattendedCount" class="stat-value">0</strong>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Search Bar -->
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Tìm nhanh theo Tên hoặc MSSV..." autocomplete="off">
+        <button id="clearSearchBtn" class="clear-search-btn hidden" title="Xóa tìm kiếm">✕</button>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="tabs-nav">
+        <button id="tabAttendedBtn" class="tab-btn active">
+            Đã điểm danh (<span id="tabAttendedCount">0</span>)
+        </button>
+        <button id="tabUnattendedBtn" class="tab-btn">
+            Chưa điểm danh (<span id="tabUnattendedBadge">0</span>)
+        </button>
+    </div>
+
+    <!-- Tab 1 Content: Attended Students -->
+    <section id="tabAttendedContent" class="tab-content">
+        <div id="attendanceList" class="attendance-list">
+            <!-- Render danh sách sinh viên đã điểm danh -->
+        </div>
+    </section>
+
+    <!-- Tab 2 Content: Unattended Students -->
+    <section id="tabUnattendedContent" class="tab-content hidden">
+        <div id="unattendedList" class="unattended-list">
+            <!-- Render danh sách sinh viên chưa điểm danh -->
+        </div>
+    </section>
+
+</div>
+
+<!-- Toast Notification -->
+<div id="toastNotification" class="toast hidden">
+    Đã sao chép báo cáo vào bộ nhớ tạm!
+</div>
+
+<!-- PIN Modal (Authentication) -->
+<div id="pinModal" class="modal hidden">
+    <div class="modal-card">
+        <h2>Bảo vệ Dashboard</h2>
+        <p class="pin-hint">Vui lòng nhập mã PIN quản trị của Lớp trưởng để truy cập.</p>
+
+        <form id="pinForm" onsubmit="event.preventDefault(); handlePinSubmit();">
+            <input type="password" id="pinInput" placeholder="Nhập PIN gồm 10 chữ số" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" autocomplete="one-time-code" autofocus>
+            <p id="pinErrorMessage" class="pin-error hidden">Mã PIN không chính xác.</p>
+
+            <button type="submit" id="submitPinBtn" class="pin-submit-btn">
+                Mở khóa Dashboard
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 16px;">
+            <a href="/index.html" class="pin-back-link" style="font-size: 14px; color: #64748b; text-decoration: none; font-weight: 600;">
+                &larr; Quay lại trang điểm danh
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Manual Check-in Confirmation Modal -->
+<div id="manualModal" class="modal hidden">
+    <div class="modal-card">
+        <h2>Điểm danh thủ công</h2>
+        <p id="manualModalDesc" style="font-size: 15px; color: #444; margin: 12px 0 20px; line-height: 1.4;">
+            Xác nhận điểm danh cho sinh viên này?
+        </p>
+        <div class="modal-buttons">
+            <button id="cancelManualBtn" class="btn-cancel">Hủy</button>
+            <button id="confirmManualBtn" class="btn-confirm">Xác nhận có mặt</button>
+        </div>
+    </div>
+</div>
+
+<!-- Image Preview Modal -->
+<div id="imagePreviewModal" class="modal hidden" onclick="closeImagePreview()">
+    <div class="image-modal-content">
+        <img id="enlargedSelfie" src="" alt="Ảnh selfie phóng to">
+        <p id="imageCaption" class="image-caption"></p>
+        <span class="preview-hint">Chạm bất kỳ đâu để đóng</span>
+    </div>
+</div>
+
+<script src="/js/dashboard.js?v=1.7"></script>
+
+</body>
+</html>

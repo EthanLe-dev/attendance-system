@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: attendance-system
+
+  config:
+    import: optional:file:.env[.properties]
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/attendance_system?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD}
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8080
+
+attendance:
+  location:
+    latitude: 10.826282
+    longitude: 106.703757
+    radius-meters: 500
+    max-accuracy-meters: 300
+  dashboard:
+    pin: ${ATTENDANCE_DASHBOARD_PIN}
+  upload:
+    selfie-directory: uploads/selfies
+    max-file-size-bytes: 5242880
+    max-image-pixels: 12000000

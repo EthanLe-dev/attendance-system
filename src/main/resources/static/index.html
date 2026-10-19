@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Điểm danh Ngoại khóa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css?v=1.9">
+</head>
+
+<body>
+
+<div class="attendance-page">
+
+    <!-- Background -->
+    <div class="background-image"></div>
+    <div class="background-overlay"></div>
+
+    <!-- Nút vào Dashboard Lớp trưởng -->
+    <button type="button" id="openPinModalBtn" class="dashboard-shortcut-btn" title="Trang của lớp trưởng">
+        Trang của lớp trưởng
+    </button>
+
+    <!-- Nội dung -->
+    <div class="attendance-content">
+
+        <!-- Header -->
+        <div class="header">
+            <div class="event-tag">HỌC TẬP NGOẠI KHÓA</div>
+            <h1>Điểm Danh Lớp</h1>
+            <p class="museum-name">Bảo tàng Hồ Chí Minh</p>
+            <div class="header-divider"></div>
+        </div>
+
+        <!-- Main Card Container -->
+        <div class="main-card">
+
+            <!-- Form -->
+            <div id="mssvSection" class="form-section hidden">
+                <label for="mssv">Mã số sinh viên:</label>
+
+                <div class="input-container">
+                    <input
+                            type="text"
+                            id="mssv"
+                            placeholder="Nhập MSSV của bạn..."
+                            autocomplete="off"
+                    >
+                </div>
+
+                <button id="checkStudentBtn">
+                    <span>Xác nhận thông tin</span>
+                </button>
+
+                <p class="guide-text">
+                    Vui lòng cho phép quyền <strong>Vị trí (GPS)</strong> và <strong>Camera</strong> khi được hỏi.
+                </p>
+            </div>
+
+            <!-- Student info -->
+            <div id="studentInfo" class="student-info hidden">
+                <div class="student-badge-row">
+                    <span class="badge-tag">Sinh viên</span>
+                    <span class="order-badge">STT Nhóm: <strong id="studentGroupNumber"></strong></span>
+                </div>
+
+                <div class="student-profile">
+                    <div class="profile-details">
+                        <h3 id="studentName"></h3>
+                        <p>MSSV: <strong id="studentMssv"></strong></p>
+                    </div>
+                </div>
+
+                <button id="changeMssvBtn" class="change-mssv-btn">
+                    Nhập sai MSSV? Nhấn để nhập lại
+                </button>
+            </div>
+
+            <!-- Camera -->
+            <div id="cameraSection" class="camera-section hidden">
+                <div class="camera-frame">
+                    <video
+                            id="camera"
+                            autoplay
+                            playsinline>
+                    </video>
+
+                    <canvas
+                            id="photoCanvas"
+                            class="hidden">
+                    </canvas>
+
+                    <div id="previewSection" class="hidden">
+                        <img
+                                id="photoPreview"
+                                alt="Ảnh selfie">
+                    </div>
+
+                    <!-- Viewfinder Focus Corners -->
+                    <div class="viewfinder">
+                        <span class="corner tl"></span>
+                        <span class="corner tr"></span>
+                        <span class="corner bl"></span>
+                        <span class="corner br"></span>
+                    </div>
+                </div>
+
+                <p class="camera-note">
+                    Đảm bảo <strong>hiện rõ gương mặt bạn</strong>, background là <strong>bảo tàng</strong> và <strong>các bạn sinh viên khác</strong>.
+                </p>
+
+                <div class="camera-buttons">
+                    <button id="captureBtn">
+                        Nhấn để chụp ảnh điểm danh
+                    </button>
+
+                    <button
+                            id="retakeBtn"
+                            class="hidden">
+                        Chụp lại
+                    </button>
+
+                    <button
+                            id="confirmBtn"
+                            class="hidden">
+                        Xác nhận điểm danh
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Error -->
+        <div id="errorModal" class="modal hidden">
+            <div class="error-modal-content">
+                <h2>Không thể điểm danh</h2>
+                <p id="errorMessage"></p>
+                <button id="closeErrorBtn">Đã hiểu</button>
+            </div>
+        </div>
+
+        <div id="successMessage" class="success hidden">
+            Điểm danh thành công!
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Confirmation modal -->
+<div id="confirmModal" class="modal hidden">
+    <div class="confirm-modal-content">
+        <h2>Xác nhận điểm danh</h2>
+
+        <!-- Thông tin sinh viên -->
+        <div class="confirm-student-info">
+            <p>
+                <strong>Họ tên:</strong>
+                <span id="confirmName"></span>
+            </p>
+            <p>
+                <strong>MSSV:</strong>
+                <span id="confirmMssv"></span>
+            </p>
+            <p>
+                <strong>STT Nhóm:</strong>
+                <span id="confirmGroupNumber"></span>
+            </p>
+        </div>
+
+        <p class="attendance-warning" role="alert">
+            Kiểm tra kỹ thông tin: MSSV, họ tên và STT Nhóm trước khi điểm danh. Mỗi sinh viên chỉ có thể gửi điểm danh một lần.
+        </p>
+
+        <!-- Ảnh selfie -->
+        <img
+                id="confirmPhoto"
+                class="confirm-photo"
+                alt="Ảnh selfie xác nhận">
+
+        <!-- GPS status -->
+        <p
+                id="locationStatus"
+                class="location-status hidden">
+        </p>
+
+        <!-- Buttons -->
+        <div class="modal-buttons">
+            <button
+                    id="cancelConfirmBtn"
+                    class="cancel-btn">
+                Hủy
+            </button>
+            <button
+                    id="confirmAttendanceBtn"
+                    class="confirm-attendance-btn">
+                Điểm danh ngay
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- PIN Modal on Index -->
+<div id="pinModal" class="modal hidden">
+    <div class="confirm-modal-content">
+        <h2>Bảo vệ Dashboard</h2>
+        <p style="font-size: 14px; color: #64748b; margin: 8px 0 16px;">
+            Vui lòng nhập mã PIN quản trị của Lớp trưởng để truy cập.
+        </p>
+        <input type="password" id="pinInput" placeholder="Nhập PIN gồm 10 chữ số" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" autocomplete="one-time-code" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 18px; text-align: center; letter-spacing: 4px; outline: none; margin-bottom: 12px;">
+        <p id="pinErrorMessage" class="hidden" style="font-size: 13px; color: #dc2626; margin: 0 0 12px; font-weight: 600;">Mã PIN không chính xác.</p>
+        <div class="modal-buttons" style="display: flex; gap: 10px;">
+            <button type="button" id="cancelPinBtn" class="cancel-btn">Hủy</button>
+            <button type="button" id="submitPinBtn" class="confirm-attendance-btn">Mở khóa</button>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="modal hidden">
+    <div class="success-modal-content">
+        <h2>
+            Điểm danh xong rồi<br>
+            đi chơi i bạn!!!
+        </h2>
+        <img
+                src="/images/attendance-success.jpg"
+                class="success-image"
+                alt="Điểm danh thành công">
+    </div>
+</div>
+
+<script src="/js/attendance.js?v=1.7"></script>
+
+</body>
+</html>

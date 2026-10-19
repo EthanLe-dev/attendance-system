@@ -1,0 +1,6 @@
+# Local secrets and private student data
+.env
+uploads/
+
+# Build output
+target/
